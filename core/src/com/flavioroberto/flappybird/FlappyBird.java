@@ -7,27 +7,51 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class FlappyBird extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
-	
-	@Override
-	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
-	}
 
-	@Override
-	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
-	}
-	
-	@Override
-	public void dispose () {
-		batch.dispose();
-		img.dispose();
-	}
+    //gera os sprites para as animações
+    private SpriteBatch batch;
+    private Texture[] bird;
+    private Texture background;
+
+    //atributos configuracao
+    private int larguraDoDispositivo, alturaDoDispositivo;
+    private float variacao = 0;
+
+
+    public FlappyBird() {
+    }
+
+
+    @Override
+    public void create() {
+        batch = new SpriteBatch();
+        bird = new Texture[3];
+        bird[0] = new Texture("passaro1.png");
+        bird[1] = new Texture("passaro2.png");
+        bird[2] = new Texture("passaro3.png");
+        background = new Texture("fundo.png");
+        alturaDoDispositivo = Gdx.graphics.getHeight();
+        larguraDoDispositivo = Gdx.graphics.getWidth();
+    }
+
+    @Override
+    public void render() {
+        //conta no tempo de fps do dispositivo
+        variacao+=Gdx.graphics.getDeltaTime()*10;
+
+        if(variacao > 2)
+            variacao = 0;
+
+        //inicializa o processo de renderização por fps
+        batch.begin();
+
+        batch.draw(background, 0, 0, larguraDoDispositivo,alturaDoDispositivo);
+
+        //desenhando a imagem
+        batch.draw(bird[(int)variacao], 30, alturaDoDispositivo / 2 - bird[0].getHeight());
+
+        //finaliza o processo de renderização
+        batch.end();
+    }
+
 }
