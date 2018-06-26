@@ -6,8 +6,12 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 
 import java.awt.Color;
+import java.lang.reflect.Field;
 import java.util.Random;
 
 public class FlappyBird extends ApplicationAdapter {
@@ -32,6 +36,8 @@ public class FlappyBird extends ApplicationAdapter {
     private int estadoDoJogo;
     private int pontuacao = 0;
     private BitmapFont fontPontuacao;
+    private Circle passarocirculo;
+    private Rectangle canoTopoRetangulo,canoBaixoRetangulo;
 
     public FlappyBird() {
     }
@@ -53,7 +59,10 @@ public class FlappyBird extends ApplicationAdapter {
         fontPontuacao.setColor(com.badlogic.gdx.graphics.Color.WHITE);
         fontPontuacao.getData().setScale(8);
 
-
+        shape = new ShapeRenderer();
+        passarocirculo = new Circle();
+        canoBaixoRetangulo = new Rectangle();
+        canoTopoRetangulo = new Rectangle();
         numeroRandomico = new Random();
         alturaDoDispositivo = Gdx.graphics.getHeight();
         larguraDoDispositivo = Gdx.graphics.getWidth();
@@ -104,11 +113,11 @@ public class FlappyBird extends ApplicationAdapter {
                 posicaoInicialVertical = posicaoInicialVertical - velocidadeQueda;
 
             //condicao game over
-            if(posicaoInicialVertical <=0 ) {
+            if(posicaoInicialVertical <=0 )
                 pontuacao = 0;
-                estadoDoJogo = 2;
-                posicaoInicialVertical =  bird[0].getHeight()-30;
-            }
+
+
+
         }
 
         //inicializa o processo de renderização por fps
@@ -120,9 +129,11 @@ public class FlappyBird extends ApplicationAdapter {
         batch.draw(bird[(int)variacao], 120, posicaoInicialVertical);
 
         //desenhando o cano
-        batch.draw(canoSuperior,posicaoInicialCanoHorizontal,alturaDoDispositivo/2 + espacoEntreOsCanos + alturaRandomica);
+        float posicaoCanoTopoVertical = alturaDoDispositivo/2 + espacoEntreOsCanos + alturaRandomica;
+        batch.draw(canoSuperior,posicaoInicialCanoHorizontal,posicaoCanoTopoVertical);
 
-        batch.draw(canoInferior,posicaoInicialCanoHorizontal,alturaDoDispositivo / 2 - canoInferior.getHeight() +alturaRandomica - espacoEntreOsCanos);
+        float posicaoCanoBaixoVertical = alturaDoDispositivo / 2 - canoInferior.getHeight() +alturaRandomica - espacoEntreOsCanos;
+        batch.draw(canoInferior,posicaoInicialCanoHorizontal,posicaoCanoBaixoVertical);
 
         fontPontuacao.draw(batch,String.valueOf(pontuacao),larguraDoDispositivo/2,alturaDoDispositivo-50);
 
@@ -130,6 +141,19 @@ public class FlappyBird extends ApplicationAdapter {
         batch.end();
 
 
+        passarocirculo.set(120+bird[0].getWidth()/2,posicaoInicialVertical+bird[0].getHeight()/2,bird[0].getWidth()/2);
+
+        canoTopoRetangulo = new Rectangle(posicaoInicialCanoHorizontal,posicaoCanoTopoVertical,
+                canoTopoRetangulo.getWidth(),canoTopoRetangulo.getHeight());
+
+        canoBaixoRetangulo = new Rectangle(posicaoInicialCanoHorizontal,posicaoCanoBaixoVertical,
+                canoBaixoRetangulo.getWidth(),canoBaixoRetangulo.getHeight());
+
+
+        //verificadno colisoes
+        if(Intersector.overlaps(passarocirculo,canoTopoRetangulo) || Intersector.overlaps(passarocirculo,canoBaixoRetangulo)){
+            estadoDoJogo = 0;
+        }
     }
 
 }
